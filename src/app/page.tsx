@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import styles from './page.module.css';
 import {
   FACE_ORDER,
-  FACE_NAMES,
   FACE_CSS_COLORS,
   FaceColor,
   CubeFace,
@@ -108,7 +107,6 @@ function HeroSection({ onStart, solverStatus }: { onStart: (mode: CaptureMode) =
           { icon: '🎯', label: 'Auto Color Detection' },
           { icon: '🔄', label: 'Step-by-Step Guide' },
           { icon: '⚡', label: 'Solves in Seconds' },
-          { icon: '✅', label: 'Full Validation' },
         ].map(({ icon, label }) => (
           <div key={label} className={`${styles.featureChip} glass animate-fadeInUp`}>
             <span>{icon}</span>

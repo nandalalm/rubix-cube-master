@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Rubik's Cube Master — AI-Powered Cube Solver",
+  title: "Rubik's Cube Master",
   description:
     "Scan your Rubik's Cube with your camera and get a step-by-step solution powered by Kociemba's two-phase algorithm. Solve any cube in 22 moves or less.",
   keywords: ["rubik's cube", "cube solver", "camera scanner", "puzzle solver", "kociemba"],

@@ -35,7 +35,7 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
 
   const currentFace = FACE_ORDER[currentFaceIndex];
 
-  const startCamera = useCallback(async () => {
+  const startCamera = useCallback(async (retryCount = 0) => {
     setCameraLoading(true);
     setCameraError(null);
     setConfirmMode(false);
@@ -57,6 +57,16 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
       }
     } catch (err) {
       const e = err as Error;
+      if (e.name === 'AbortError') {
+        // Ignored: interrupted by a new load request (React Strict Mode double mount)
+        return;
+      }
+      if (e.name === 'NotReadableError' || e.message.includes('Could not start video source')) {
+        if (retryCount < 2) {
+          setTimeout(() => startCamera(retryCount + 1), 500);
+          return;
+        }
+      }
       if (e.name === 'NotAllowedError') {
         setCameraError('Camera permission denied. Please allow camera access in your browser settings.');
       } else if (e.name === 'NotFoundError') {
