@@ -1,0 +1,192 @@
+.scanner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---- Camera ---- */
+.cameraWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hiddenCanvas {
+  display: none;
+}
+
+.cameraOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 15, 0.85);
+  z-index: 10;
+  padding: 1.5rem;
+}
+
+.cameraAlert {
+  max-width: 320px;
+  text-align: center;
+}
+
+/* ---- Scan Overlay ---- */
+.scanOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.scanBox {
+  position: relative;
+  width: min(55vw, 55vh, 280px);
+  aspect-ratio: 1;
+}
+
+/* Animated corners */
+.corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: rgba(168, 85, 247, 0.9);
+  border-style: solid;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.cornerTL { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.cornerTR { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.cornerBL { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.cornerBR { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+/* Grid lines inside scan box */
+.grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.gridCell {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ---- Face Label ---- */
+.faceLabel {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 10, 15, 0.75);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9999px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  color: #f0f0ff;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  z-index: 6;
+}
+
+.faceDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+/* ---- Camera Flip Button ---- */
+.flipBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 7;
+  background: rgba(10,10,15,0.65) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  backdrop-filter: blur(8px);
+  font-size: 1.1rem;
+}
+
+/* ---- Preview Section ---- */
+.previewSection {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 160px;
+  margin: 0 auto 1rem;
+}
+
+.colorCell {
+  aspect-ratio: 1;
+}
+
+.colorSwatch {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,0.15);
+  transition: transform 0.15s ease;
+}
+
+.colorSelect {
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.instruction {
+  text-align: center;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .cameraWrapper {
+    aspect-ratio: 4/3;
+  }
+  .scanBox {
+    width: min(70vw, 70vh, 240px);
+  }
+}
