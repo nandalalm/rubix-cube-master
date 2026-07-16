@@ -1,0 +1,154 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+/* ---- Color Palette ---- */
+.palette {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.paletteColors {
+  display: flex;
+  gap: 8px;
+}
+
+.paletteBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.paletteBtn:hover {
+  transform: scale(1.15);
+  border-color: rgba(255,255,255,0.6);
+}
+
+.paletteBtnActive {
+  transform: scale(1.2) !important;
+  border-color: #fff !important;
+  box-shadow: 0 0 12px rgba(255,255,255,0.4);
+}
+
+/* ---- Cross Layout ---- */
+.cross {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.crossRow {
+  display: flex;
+  gap: 4px;
+}
+
+.faceSlot {
+  /* each slot = 1 face width */
+}
+
+.emptySlot {
+  /* placeholder to align with face */
+  width: 108px;
+  height: 108px;
+}
+
+/* ---- Face ---- */
+.face {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.faceLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  height: 16px;
+}
+
+.faceLabelDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+.faceGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  width: 108px;
+}
+
+.cell {
+  width: 33px;
+  height: 33px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(0, 0, 0, 0.25);
+  transition: all 0.12s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell:hover:not(.centerCell) {
+  transform: scale(1.1);
+  z-index: 2;
+  border-color: rgba(255,255,255,0.5) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.centerCell {
+  border-color: rgba(255,255,255,0.4) !important;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2);
+}
+
+.centerDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .emptySlot {
+    width: 84px;
+    height: 84px;
+  }
+  .faceGrid {
+    width: 84px;
+  }
+  .cell {
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
+  }
+  .paletteBtn {
+    width: 26px;
+    height: 26px;
+  }
+}
