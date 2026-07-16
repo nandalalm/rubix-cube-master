@@ -1,27 +1,25 @@
-# 🟧 Rubik's Cube Master
+# Rubik's Cube Master
 
-An AI-powered **Rubik's Cube solver** built with **Next.js** that uses your camera to scan the cube and provides step-by-step solving instructions.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/rubix-cube-master)
+An AI-powered Rubik's Cube solver built with Next.js that uses your camera to scan the cube and provides step-by-step solving instructions.
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Details |
 |---|---|
-| 📷 **Camera Scanning** | Scan all 6 sides using your device camera |
-| 🎨 **Live Color Detection** | HSV-based auto color classification per facelet |
-| ✏️ **Manual Entry** | Click-to-paint 2D cube editor (unfolded cross layout) |
-| ✅ **Full Validation** | Detects invalid configs, duplicates, already-solved cubes |
-| ⚡ **Kociemba Solver** | Finds the optimal solution in ≤22 moves |
-| 🔄 **Step-by-Step Guide** | Animated move instructions with notation, arrows, jump-to-step |
-| 📱 **Responsive** | Works on mobile, tablet, and desktop |
-| 🌙 **Dark Mode Design** | Glassmorphism, gradient accents, micro-animations |
+| **Camera Scanning** | Scan all 6 sides using your device camera |
+| **Live Color Detection** | HSV-based auto color classification per facelet |
+| **Manual Entry** | Click-to-paint 2D cube editor (unfolded cross layout) |
+| **Full Validation** | Detects invalid configs, duplicates, already-solved cubes |
+| **Kociemba Solver** | Finds the optimal solution in ≤22 moves |
+| **Step-by-Step Guide** | Animated move instructions with notation, arrows, jump-to-step |
+| **Responsive** | Works on mobile, tablet, and desktop |
+| **Dark Mode Design** | Glassmorphism, gradient accents, micro-animations |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 20+
@@ -46,18 +44,17 @@ npm start
 
 ---
 
-## 📦 Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **Styling**: Vanilla CSS with CSS Modules
 - **Solver**: [cubejs](https://github.com/ldez/cubejs) — Kociemba's two-phase algorithm
 - **Performance**: Web Worker for solver (keeps UI responsive)
-- **Deployment**: Vercel (zero-config)
 
 ---
 
-## 🎯 How to Use
+## How to Use
 
 ### Camera Mode
 1. Click **Scan with Camera** and grant camera permission
@@ -65,29 +62,18 @@ npm start
 3. Align the cube within the purple guide box
 4. Click **Capture Face** — review and correct any misdetected colors
 5. Click **Confirm Colors** and repeat for all 6 faces
-6. Review the complete cube in the editor, then click **⚡ Solve Cube**
+6. Review the complete cube in the editor, then click **Solve Cube**
 7. Follow the step-by-step instructions!
 
 ### Manual Mode
 1. Click **Enter Manually**
 2. Use the paint brush selector to pick a color
 3. Click facelets on the unfolded cube to paint them
-4. Click **⚡ Solve Cube**
+4. Click **Solve Cube**
 
 ---
 
-## 🌐 Deploy to Vercel
-
-```bash
-npm i -g vercel
-vercel
-```
-
-Or use the button above to deploy directly from GitHub.
-
----
-
-## 📝 Cube Face Order
+## Cube Face Order
 
 The app uses the standard **U R F D L B** face notation:
 
@@ -99,17 +85,3 @@ The app uses the standard **U R F D L B** face notation:
 | D | Down | Yellow |
 | L | Left | Orange |
 | B | Back | Blue |
-
----
-
-## ⚠️ Lighting Tips for Best Scanning
-
-- Scan in good, even lighting — avoid strong shadows
-- Keep the cube flat and aligned with the guide box
-- Use the **manual color correction** in the review step for any misdetections
-
----
-
-## 📄 License
-
-MIT
