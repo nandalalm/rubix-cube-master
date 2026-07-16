@@ -1,7 +1,7 @@
 'use client';
 
 import styles from './FaceProgress.module.css';
-import { FACE_ORDER, FACE_LABELS, FACE_CSS_COLORS, FaceColor } from '@/lib/cubeUtils';
+import { FACE_ORDER, FACE_LABELS, FACE_CSS_COLORS, FaceColor, FACE_DIRECTIONS } from '@/lib/cubeUtils';
 
 interface FaceProgressProps {
   scannedFaces: Set<FaceColor>;
@@ -29,9 +29,9 @@ export default function FaceProgress({ scannedFaces, currentFaceIndex, onFaceCli
               <div
                 className={styles.faceSquare}
                 style={{
-                  background: isScanned || isCurrent ? FACE_CSS_COLORS[face] : 'rgba(255,255,255,0.06)',
-                  borderColor: isCurrent ? FACE_CSS_COLORS[face] : isScanned ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
-                  opacity: isScanned ? 1 : isCurrent ? 0.85 : 0.35,
+                  background: isScanned || isCurrent ? FACE_CSS_COLORS[face] : 'var(--color-surface)',
+                  borderColor: isCurrent ? FACE_CSS_COLORS[face] : isScanned ? 'rgba(255,255,255,0.2)' : 'var(--color-border)',
+                  opacity: isScanned ? 1 : isCurrent ? 0.85 : 0.5,
                 }}
               >
                 {isScanned && (
@@ -41,8 +41,8 @@ export default function FaceProgress({ scannedFaces, currentFaceIndex, onFaceCli
                   <span className={styles.currentDot} />
                 )}
               </div>
-              <span className={styles.faceId} style={{ color: isScanned ? FACE_CSS_COLORS[face] : isCurrent ? FACE_CSS_COLORS[face] : 'rgba(255,255,255,0.35)' }}>
-                {face}
+              <span className={styles.faceId} style={{ color: isCurrent ? '#c084fc' : isScanned ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
+                {FACE_DIRECTIONS[face]}
               </span>
             </button>
           );

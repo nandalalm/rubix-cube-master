@@ -1,6 +1,8 @@
 .main {
-  min-height: 100vh;
-  padding-bottom: 3rem;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
@@ -8,6 +10,10 @@
   max-width: 680px;
   margin: 0 auto;
   padding: 0 1.25rem;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ---- Header ---- */
@@ -15,8 +21,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 0;
-  margin-bottom: 0.5rem;
+  padding: 0.75rem 0; /* Reduced from 1.25rem to tighten top spacing */
+  margin-bottom: 0.25rem; /* Reduced from 0.5rem */
 }
 
 .logo {
@@ -114,12 +120,107 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  padding-bottom: 2rem;
+  gap: 1rem;
+  /* Allow home / edit sections to scroll if content is tall */
+  overflow-y: auto;
+  flex: 1 1 0;
+  padding-bottom: 1.5rem;
+}
+
+/* Scan section: instruction card can scroll into view on small screens */
+.section.noScroll {
+  overflow-y: auto;
+  padding-bottom: 8px;
+  gap: 8px;
+  margin-top: -6px; /* Shift the cards upwards slightly */
+}
+
+/* ---- Shared scan card chrome ---- */
+.scanCard {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+/* Box 2 — scanner card fills space with height constraints */
+.scannerCard {
+  flex: 1 1 0;
+  min-height: 300px;
+  max-height: 500px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+/* ---- Instruction card (Box 3) ---- */
+.instructionCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.instructionIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.instructionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.instructionStep {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.instructionFaceName {
+  color: #c084fc;
+}
+
+.instructionText {
+  font-size: 0.78rem;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.instructionTips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.tipChip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  color: #c084fc;
+  white-space: nowrap;
 }
 
 .sectionHeader {
-  padding-top: 0.5rem;
+  padding-top: 0;
 }
 
 /* ---- Color Count Chips ---- */
@@ -199,3 +300,11 @@
     grid-template-rows: repeat(2, 28px);
   }
 }
+
+@media (min-aspect-ratio: 1/1) and (min-width: 600px) {
+  .scannerCard {
+    min-height: unset;
+    max-height: 380px;
+  }
+}
+

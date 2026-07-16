@@ -7,12 +7,21 @@
 export type FaceColor = 'U' | 'R' | 'F' | 'D' | 'L' | 'B';
 
 export const FACE_NAMES: Record<FaceColor, string> = {
-  U: 'Top (White)',
-  R: 'Right (Red)',
-  F: 'Front (Green)',
-  D: 'Bottom (Yellow)',
-  L: 'Left (Orange)',
-  B: 'Back (Blue)',
+  U: "Cube's Top",
+  R: "Cube's Right",
+  F: "Cube's Front",
+  D: "Cube's Bottom",
+  L: "Cube's Left",
+  B: "Cube's Back",
+};
+
+export const FACE_DIRECTIONS: Record<FaceColor, string> = {
+  U: 'Top',
+  R: 'Right',
+  F: 'Front',
+  D: 'Bottom',
+  L: 'Left',
+  B: 'Back',
 };
 
 export const FACE_ORDER: FaceColor[] = ['U', 'R', 'F', 'D', 'L', 'B'];
@@ -28,21 +37,21 @@ export const FACE_CSS_COLORS: Record<FaceColor, string> = {
 };
 
 export const FACE_LABELS: Record<FaceColor, string> = {
-  U: 'Up',
-  R: 'Right',
-  F: 'Front',
-  D: 'Down',
-  L: 'Left',
-  B: 'Back',
+  U: 'White',
+  R: 'Red',
+  F: 'Green',
+  D: 'Yellow',
+  L: 'Orange',
+  B: 'Blue',
 };
 
 export const FACE_INSTRUCTIONS: Record<FaceColor, string> = {
-  U: 'Hold the cube with the WHITE face pointing UP toward the camera',
-  R: 'Now rotate: RED face pointing UP toward the camera',
-  F: 'Now rotate: GREEN face pointing UP toward the camera',
-  D: 'Now rotate: YELLOW face pointing UP toward the camera',
-  L: 'Now rotate: ORANGE face pointing UP toward the camera',
-  B: 'Now rotate: BLUE face pointing UP toward the camera',
+  U: 'Show the TOP face to the camera',
+  R: 'Keep TOP on top, and rotate the cube to show the RIGHT face',
+  F: 'Keep TOP on top, and rotate the cube to show the FRONT face',
+  D: 'Keep FRONT on top, and tilt the cube to show the BOTTOM face',
+  L: 'Keep TOP on top, and rotate the cube to show the LEFT face',
+  B: 'Keep TOP on top, and rotate the cube to show the BACK face',
 };
 
 export type CubeFace = FaceColor[]; // 9 facelets [0..8], row-major
@@ -127,7 +136,7 @@ export function classifyColor(r: number, g: number, b: number): FaceColor {
   const [h, s, v] = rgbToHsv(r, g, b);
 
   // White: low saturation, high value
-  if (s < 0.25 && v > 0.75) return 'U';
+  if (s < 0.28 && v > 0.65) return 'U';
 
   // Yellow: hue 45-75
   if (h >= 40 && h <= 80 && s > 0.4) return 'D';
@@ -165,11 +174,29 @@ export function sampleFaceColors(
 
   for (let row = 0; row < 3; row++) {
     for (let col = 0; col < 3; col++) {
-      // Sample center pixel of each cell
-      const px = Math.round(boxX + col * cellSize + cellSize / 2);
-      const py = Math.round(boxY + row * cellSize + cellSize / 2);
-      const idx = (py * width + px) * 4;
-      const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+      // Average a small region around the center of the cell to reduce noise/shadows
+      let sumR = 0, sumG = 0, sumB = 0;
+      let count = 0;
+      const sampleRadius = Math.max(1, Math.floor(cellSize * 0.15));
+
+      for (let dy = -sampleRadius; dy <= sampleRadius; dy++) {
+        for (let dx = -sampleRadius; dx <= sampleRadius; dx++) {
+          const px = Math.round(boxX + col * cellSize + cellSize / 2 + dx);
+          const py = Math.round(boxY + row * cellSize + cellSize / 2 + dy);
+          
+          if (px >= 0 && px < width && py >= 0 && py < imageData.height) {
+            const idx = (py * width + px) * 4;
+            sumR += data[idx];
+            sumG += data[idx + 1];
+            sumB += data[idx + 2];
+            count++;
+          }
+        }
+      }
+
+      const r = Math.round(sumR / count);
+      const g = Math.round(sumG / count);
+      const b = Math.round(sumB / count);
       colors.push(classifyColor(r, g, b));
     }
   }

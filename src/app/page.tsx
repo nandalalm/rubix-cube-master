@@ -13,6 +13,7 @@ import {
   toFaceletString,
   isSolved,
   validateCubeState,
+  FACE_DIRECTIONS,
 } from '@/lib/cubeUtils';
 
 // Lazy load heavy components
@@ -155,6 +156,18 @@ export default function Home() {
     return () => worker.terminate();
   }, []);
 
+  // Toggle bright background (flashlight mode) during camera scanning
+  useEffect(() => {
+    if (phase === 'scan') {
+      document.body.classList.add('flashlightTheme');
+    } else {
+      document.body.classList.remove('flashlightTheme');
+    }
+    return () => {
+      document.body.classList.remove('flashlightTheme');
+    };
+  }, [phase]);
+
   const handleStart = (mode: CaptureMode) => {
     setCaptureMode(mode);
     setCubeState(createSolvedState());
@@ -246,9 +259,22 @@ export default function Home() {
             <span className="font-bold text-lg">Cube<span className="text-accent">Master</span></span>
           </button>
           {phase !== 'home' && (
-            <button className="btn btn-ghost btn-sm" onClick={handleReset}>
-              ✕ Reset
-            </button>
+            <div className="flex gap-2 items-center">
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => {
+                  if (phase === 'scan') setPhase('home');
+                  else if (phase === 'edit') setPhase(captureMode === 'camera' ? 'scan' : 'home');
+                  else if (phase === 'solution') setPhase('home');
+                  else setPhase('home');
+                }}
+              >
+                ← Back
+              </button>
+              <button className="btn btn-ghost btn-sm" onClick={handleReset}>
+                ✕ Reset
+              </button>
+            </div>
           )}
         </header>
 
@@ -259,35 +285,55 @@ export default function Home() {
 
         {/* ========================= SCAN ========================= */}
         {phase === 'scan' && (
-          <div className={`${styles.section} animate-fadeIn`}>
-            <div className={styles.sectionHeader}>
-              <h2 className="text-2xl font-bold">Scan Your Cube</h2>
-              <p className="text-secondary text-sm mt-1">
-                Hold each face up to the camera. Align the cube within the guide box.
-              </p>
+        <div className={`${styles.section} ${styles.noScroll} animate-fadeIn`}>
+
+            {/* ── Box 1: Face progress tracker ── */}
+            <div className={styles.scanCard}>
+              <FaceProgress
+                scannedFaces={scannedFaces}
+                currentFaceIndex={currentFaceIndex}
+              />
             </div>
 
-            <FaceProgress
-              scannedFaces={scannedFaces}
-              currentFaceIndex={currentFaceIndex}
-            />
-
-            <CubeScanner
-              onFaceScanned={handleFaceScanned}
-              scannedFaces={scannedFaces}
-              currentFaceIndex={currentFaceIndex}
-            />
-
-            <div className="flex gap-3 mt-2">
-              <button className="btn btn-ghost btn-sm" onClick={() => setPhase('home')}>← Back</button>
-              {scannedFaces.size > 0 && (
-                <button className="btn btn-secondary btn-sm w-full" onClick={() => setPhase('edit')}>
-                  Review & Edit Colors →
-                </button>
-              )}
+            {/* ── Box 2: Live scanner (camera + grid + capture) ── */}
+            <div className={`${styles.scanCard} ${styles.scannerCard}`}>
+              <CubeScanner
+                onFaceScanned={handleFaceScanned}
+                scannedFaces={scannedFaces}
+                currentFaceIndex={currentFaceIndex}
+              />
             </div>
+
+            {/* ── Box 3: Instruction card ── */}
+            <div className={styles.instructionCard}>
+              <div className={styles.instructionIcon}>
+                {currentFaceIndex === 0 ? '🔝' : currentFaceIndex === 5 ? '🔙' : '🔄'}
+              </div>
+              <div className={styles.instructionBody}>
+                <p className={styles.instructionStep}>
+                  Step {currentFaceIndex + 1} of 6 &mdash; <span className={styles.instructionFaceName}>{['Top','Right','Front','Bottom','Left','Back'][currentFaceIndex]}</span> face
+                </p>
+                <p className={styles.instructionText}>
+                  {[
+                    'Hold the cube with the white centre facing the camera. Keep the cube steady inside the scanning box until the colors lock in.',
+                    'Keep the white face on top. Rotate the cube 90° to your right so the red (or opposite) face points at the camera.',
+                    'Keep the white face on top. The green (or front) face should now directly face the camera — no rotation needed from home position.',
+                    'Tilt the cube forward 90° so the yellow (bottom) face now faces the camera. Keep the front face pointing down.',
+                    'Keep the white face on top. Rotate the cube 90° to your left so the orange face points at the camera.',
+                    'Keep the white face on top. Rotate the cube 180° from the front position so the blue (back) face points at the camera.',
+                  ][currentFaceIndex]}
+                </p>
+                <div className={styles.instructionTips}>
+                  <span className={styles.tipChip}>💡 Good lighting helps</span>
+                  <span className={styles.tipChip}>📐 Fill the scan box</span>
+                  <span className={styles.tipChip}>🕐 Hold still 1s</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
+
 
         {/* ========================= EDIT ========================= */}
         {phase === 'edit' && (
@@ -315,7 +361,7 @@ export default function Home() {
                 return (
                   <div key={face} className={`${styles.countChip} ${ok ? styles.countOk : styles.countBad}`}>
                     <div className={styles.countDot} style={{ background: FACE_CSS_COLORS[face] }} />
-                    <span>{face}: {count}/9</span>
+                    <span>{FACE_DIRECTIONS[face]}: {count}/9</span>
                   </div>
                 );
               })}
@@ -326,12 +372,6 @@ export default function Home() {
             </div>
 
             <div className={`flex gap-3 mt-2 ${styles.editActions}`}>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => setPhase(captureMode === 'camera' ? 'scan' : 'home')}
-              >
-                ← Back
-              </button>
               <button
                 className="btn btn-primary w-full"
                 onClick={handleSolve}
