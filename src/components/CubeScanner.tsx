@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './CubeScanner.module.css';
 import {
   FACE_ORDER,
-  FACE_NAMES,
   FACE_INSTRUCTIONS,
   FACE_CSS_COLORS,
   FaceColor,
@@ -12,7 +11,6 @@ import {
   sampleFaceColors,
   classifyColor,
   FACE_LABELS,
-  FACE_DIRECTIONS,
 } from '@/lib/cubeUtils';
 
 interface CubeScannerProps {
@@ -37,6 +35,11 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
   const animFrameRef = useRef<number>(0);
   const stableFramesRef = useRef<number>(0);
   const lastColorsRef = useRef<string>('');
+  const isProcessingConfirmRef = useRef(false);
+
+  useEffect(() => {
+    isProcessingConfirmRef.current = false;
+  }, [currentFaceIndex]);
 
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [cameraLoading, setCameraLoading] = useState(true);
@@ -155,11 +158,11 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
       const colors = sampleFaceColors(imageData, boxX, boxY, boxSize);
       setPreviewColors(colors);
 
-      // Auto-capture when stable for 22 frames (approx. 0.75 seconds)
+      // Auto-capture when stable for 60 frames (approx. 2 seconds)
       const colorsStr = colors.join('');
       if (colorsStr === lastColorsRef.current) {
         stableFramesRef.current += 1;
-        if (stableFramesRef.current > 22) {
+        if (stableFramesRef.current > 60) {
           setCapturedColors(colors);
           setConfirmMode(true);
           cancelAnimationFrame(animFrameRef.current);
@@ -201,7 +204,8 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
   };
 
   const handleConfirm = () => {
-    if (!capturedColors) return;
+    if (!capturedColors || isProcessingConfirmRef.current) return;
+    isProcessingConfirmRef.current = true;
     onFaceScanned(currentFace, capturedColors as CubeFace);
     setConfirmMode(false);
     setCapturedColors(null);
@@ -280,7 +284,7 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
         {!cameraLoading && !cameraError && (
           <div className={styles.faceLabel}>
             <span className={styles.faceDot} style={{ background: FACE_CSS_COLORS[currentFace] }} />
-            <span>Scanning: <strong>{FACE_NAMES[currentFace]}</strong></span>
+            <span>Scanning: <strong>Centre {FACE_LABELS[currentFace]}</strong></span>
           </div>
         )}
 
@@ -312,7 +316,6 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
                       cursor: confirmMode ? 'pointer' : 'default',
                     }}
                     onClick={() => confirmMode && handleColorChange(i, selectedBrush)}
-                    title={confirmMode ? `Paint ${FACE_DIRECTIONS[selectedBrush]}` : undefined}
                   />
                 </div>
               ))}
@@ -335,7 +338,7 @@ export default function CubeScanner({ onFaceScanned, scannedFaces, currentFaceIn
                             borderColor: isSelected ? SELECTED_BORDER_COLORS[f] : 'var(--color-border)',
                           }}
                           onClick={() => setSelectedBrush(f)}
-                          title={`Use ${FACE_DIRECTIONS[f]} brush`}
+                          title={`Use ${FACE_LABELS[f]} colour`}
                         />
                       );
                     })}

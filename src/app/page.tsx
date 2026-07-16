@@ -6,6 +6,7 @@ import styles from './page.module.css';
 import {
   FACE_ORDER,
   FACE_CSS_COLORS,
+  FACE_LABELS,
   FaceColor,
   CubeFace,
   CubeState,
@@ -13,7 +14,6 @@ import {
   toFaceletString,
   isSolved,
   validateCubeState,
-  FACE_DIRECTIONS,
 } from '@/lib/cubeUtils';
 
 // Lazy load heavy components
@@ -182,21 +182,26 @@ export default function Home() {
     setValidationError(null);
 
     setCubeState(prev => ({ ...prev, [face]: colors }));
+    
     setScannedFaces(prev => {
       const next = new Set(prev);
       next.add(face);
       return next;
     });
 
-    // Move to next un-scanned face
-    const nextIdx = FACE_ORDER.findIndex((f, idx) => idx > currentFaceIndex && !scannedFaces.has(f));
+    // Compute the next scanned set locally to avoid stale state issues
+    const nextScanned = new Set(scannedFaces);
+    nextScanned.add(face);
+
+    // Find the first face in FACE_ORDER that has not been scanned yet
+    const nextIdx = FACE_ORDER.findIndex(f => !nextScanned.has(f));
     if (nextIdx !== -1) {
       setCurrentFaceIndex(nextIdx);
     } else {
       // All 6 faces scanned → go to edit/review
       setPhase('edit');
     }
-  }, [currentFaceIndex, scannedFaces]);
+  }, [scannedFaces]);
 
   const handleCellChange = (face: FaceColor, index: number, color: FaceColor) => {
     setCubeState(prev => {
@@ -237,6 +242,17 @@ export default function Home() {
     setPhase('home');
   };
 
+  const handlePageReset = () => {
+    setCubeState(createSolvedState());
+    setScannedFaces(new Set());
+    setCurrentFaceIndex(0);
+    setValidationError(null);
+    setSolution(null);
+    if (phase !== 'scan' && phase !== 'edit') {
+      setPhase('home');
+    }
+  };
+
   // Quick face count for edit page
   const getFaceColorCounts = () => {
     const faceletStr = toFaceletString(cubeState);
@@ -271,7 +287,7 @@ export default function Home() {
               >
                 ← Back
               </button>
-              <button className="btn btn-ghost btn-sm" onClick={handleReset}>
+              <button className="btn btn-ghost btn-sm" onClick={handlePageReset}>
                 ✕ Reset
               </button>
             </div>
@@ -287,11 +303,25 @@ export default function Home() {
         {phase === 'scan' && (
         <div className={`${styles.section} ${styles.noScroll} animate-fadeIn`}>
 
+            {/* ── Hint banner: above Box 1 ── */}
+            <div className={styles.centreHint}>
+              <span className={styles.centreHintIcon}>💡</span>
+              <span>
+                <strong>Scan Tip:</strong> When scanning side faces, keep the <strong>White center pointing straight UP</strong> and start with the <strong>Green center pointing towards the camera</strong>. Rotate the cube only around this vertical axis to scan side faces — do not spin, twist, or flip the cube randomly.
+              </span>
+            </div>
+
             {/* ── Box 1: Face progress tracker ── */}
             <div className={styles.scanCard}>
               <FaceProgress
                 scannedFaces={scannedFaces}
                 currentFaceIndex={currentFaceIndex}
+                onFaceClick={(face) => {
+                  const idx = FACE_ORDER.indexOf(face);
+                  if (idx !== -1) {
+                    setCurrentFaceIndex(idx);
+                  }
+                }}
               />
             </div>
 
@@ -306,27 +336,30 @@ export default function Home() {
 
             {/* ── Box 3: Instruction card ── */}
             <div className={styles.instructionCard}>
-              <div className={styles.instructionIcon}>
-                {currentFaceIndex === 0 ? '🔝' : currentFaceIndex === 5 ? '🔙' : '🔄'}
+              <div
+                className={styles.instructionColorDot}
+                style={{ background: FACE_CSS_COLORS[FACE_ORDER[currentFaceIndex]] }}
+              >
+                <div className={styles.instructionColorDotCenter} />
               </div>
               <div className={styles.instructionBody}>
                 <p className={styles.instructionStep}>
-                  Step {currentFaceIndex + 1} of 6 &mdash; <span className={styles.instructionFaceName}>{['Top','Right','Front','Bottom','Left','Back'][currentFaceIndex]}</span> face
+                  Step {currentFaceIndex + 1} of 6 &mdash; <span className={styles.instructionFaceName}>{FACE_LABELS[FACE_ORDER[currentFaceIndex]]} Center</span> face
                 </p>
                 <p className={styles.instructionText}>
                   {[
-                    'Hold the cube with the white centre facing the camera. Keep the cube steady inside the scanning box until the colors lock in.',
-                    'Keep the white face on top. Rotate the cube 90° to your right so the red (or opposite) face points at the camera.',
-                    'Keep the white face on top. The green (or front) face should now directly face the camera — no rotation needed from home position.',
-                    'Tilt the cube forward 90° so the yellow (bottom) face now faces the camera. Keep the front face pointing down.',
-                    'Keep the white face on top. Rotate the cube 90° to your left so the orange face points at the camera.',
-                    'Keep the white face on top. Rotate the cube 180° from the front position so the blue (back) face points at the camera.',
+                    'Point the White center at the camera. Make sure the Green center points straight DOWN and the Blue center points straight UP.',
+                    'Keep the White center pointing straight UP. Turn the cube to bring the Red face (on the right) to face the camera.',
+                    'Keep the White center pointing straight UP. Turn the cube to bring the Green face (on the front) to face the camera.',
+                    'Point the Yellow center at the camera. Make sure the Green center points straight UP and the Blue center points straight DOWN.',
+                    'Keep the White center pointing straight UP. Turn the cube to bring the Orange face (on the left) to face the camera.',
+                    'Keep the White center pointing straight UP. Turn the cube to bring the Blue face (on the back) to face the camera.',
                   ][currentFaceIndex]}
                 </p>
                 <div className={styles.instructionTips}>
                   <span className={styles.tipChip}>💡 Good lighting helps</span>
                   <span className={styles.tipChip}>📐 Fill the scan box</span>
-                  <span className={styles.tipChip}>🕐 Hold still 1s</span>
+                  <span className={styles.tipChip}>🕐 Hold still 2s</span>
                 </div>
               </div>
             </div>
@@ -352,6 +385,14 @@ export default function Home() {
               </div>
             )}
 
+            {/* Hint: orientation rule */}
+            <div className={`${styles.centreHint} ${styles.centreHintDark}`}>
+              <span className={styles.centreHintIcon}>💡</span>
+              <span>
+                <strong>Orientation Guide:</strong> Hold the cube with the <strong>White center pointing straight UP (to the sky)</strong> and the <strong>Green center pointing straight at YOU</strong>. Keep this exact orientation constant without spinning, twisting, or rotating the cube randomly and changing its axis as you paint the colors to match the layout.
+              </span>
+            </div>
+
             {/* Color count status */}
             <div className={styles.colorCounts}>
               {FACE_ORDER.map(face => {
@@ -361,7 +402,7 @@ export default function Home() {
                 return (
                   <div key={face} className={`${styles.countChip} ${ok ? styles.countOk : styles.countBad}`}>
                     <div className={styles.countDot} style={{ background: FACE_CSS_COLORS[face] }} />
-                    <span>{FACE_DIRECTIONS[face]}: {count}/9</span>
+                    <span>{FACE_LABELS[face]}: {count}/9</span>
                   </div>
                 );
               })}

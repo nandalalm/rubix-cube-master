@@ -308,6 +308,28 @@
   margin-top: 6px;
 }
 
+/* ---- Centre-tile hint pill (above camera) ---- */
+.centerHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(124, 58, 237, 0.13);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  color: rgba(220, 200, 255, 0.9);
+  text-align: center;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.centerHint strong {
+  color: #d8b4fe;
+  font-weight: 700;
+}
+
 /* ---- Instruction pill ---- */
 .instruction {
   font-size: 0.7rem;

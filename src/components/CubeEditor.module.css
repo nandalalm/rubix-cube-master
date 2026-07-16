@@ -24,8 +24,8 @@
 }
 
 .paletteBtn {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.2);
   cursor: pointer;
@@ -39,22 +39,22 @@
 }
 
 .paletteBtnActive {
-  transform: scale(1.2) !important;
-  border-color: #fff !important;
-  box-shadow: 0 0 12px rgba(255,255,255,0.4);
+  transform: scale(1.28) !important;
+  box-shadow: inset 0 0 0 2.5px rgba(0, 0, 0, 0.28), 0 3px 10px rgba(0, 0, 0, 0.25);
+  border-color: transparent !important;
 }
 
 /* ---- Cross Layout ---- */
 .cross {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   align-items: flex-start;
 }
 
 .crossRow {
   display: flex;
-  gap: 4px;
+  gap: 12px;
 }
 
 .faceSlot {
@@ -63,8 +63,8 @@
 
 .emptySlot {
   /* placeholder to align with face */
-  width: 108px;
-  height: 108px;
+  width: 86px;
+  height: 86px;
 }
 
 /* ---- Face ---- */
@@ -99,12 +99,12 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 3px;
-  width: 108px;
+  width: 86px;
 }
 
 .cell {
-  width: 33px;
-  height: 33px;
+  width: 26px;
+  height: 26px;
   border-radius: 5px;
   border: 1.5px solid rgba(0, 0, 0, 0.25);
   transition: all 0.12s ease;
@@ -150,5 +150,45 @@
   .paletteBtn {
     width: 26px;
     height: 26px;
+  }
+}
+/* ---- Centre-tile hint banner ---- */
+.centerHint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(124, 58, 237, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: rgba(220, 200, 255, 0.9);
+  line-height: 1.5;
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+}
+
+.centerHint strong {
+  color: #d8b4fe;
+  font-weight: 700;
+}
+
+/* Large screen layout */
+@media (min-width: 768px) {
+  .editor {
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+  }
+  .palette {
+    flex-direction: column;
+    padding: 1.25rem 1rem;
+    gap: 1rem;
+  }
+  .paletteColors {
+    flex-direction: column;
+    gap: 12px;
   }
 }

@@ -46,8 +46,6 @@ export default function CubeEditor({ cubeState, onChange }: CubeEditorProps) {
               className={`${styles.paletteBtn} ${activeBrush === face ? styles.paletteBtnActive : ''}`}
               style={{
                 background: FACE_CSS_COLORS[face],
-                outline: activeBrush === face ? `3px solid white` : 'none',
-                outlineOffset: '2px',
               }}
               onClick={() => setActiveBrush(face)}
               title={FACE_LABELS[face]}
@@ -85,7 +83,6 @@ export default function CubeEditor({ cubeState, onChange }: CubeEditorProps) {
                             cursor: cellIdx === 4 ? 'default' : 'pointer',
                           }}
                           onClick={() => handleCellClick(face, cellIdx)}
-                          title={cellIdx === 4 ? 'Center (fixed)' : `Click to paint ${FACE_LABELS[activeBrush]}`}
                           aria-label={`Face ${face} cell ${cellIdx}`}
                         >
                           {cellIdx === 4 && (
@@ -103,10 +100,6 @@ export default function CubeEditor({ cubeState, onChange }: CubeEditorProps) {
           </div>
         ))}
       </div>
-
-      <p className="text-xs text-muted text-center mt-2">
-        Click any facelet to paint it with the active brush color. Centers are fixed.
-      </p>
     </div>
   );
 }

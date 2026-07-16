@@ -22,6 +22,53 @@ async function initSolver() {
   }
 }
 
+function getNumSwaps(arr: number[]): number {
+  let numSwaps = 0;
+  const seen = Array(arr.length).fill(false);
+  while (true) {
+    let cur = -1;
+    for (let i = 0; i < arr.length; i++) {
+      if (!seen[i]) {
+        cur = i;
+        break;
+      }
+    }
+    if (cur === -1) {
+      break;
+    }
+    let cycleLength = 0;
+    while (!seen[cur]) {
+      seen[cur] = true;
+      cycleLength++;
+      cur = arr[cur];
+    }
+    numSwaps += cycleLength + 1;
+  }
+  return numSwaps;
+}
+
+function verifyCubeSolvability(cube: any): string | null {
+  // 1. Corner Orientation: sum of corner twists must be a multiple of 3
+  const coSum = cube.co.reduce((a: number, b: number) => a + b, 0);
+  if (coSum % 3 !== 0) {
+    return 'Invalid corner orientation (e.g. a corner is physically twisted). Please check your colors.';
+  }
+
+  // 2. Edge Orientation: number of flipped edges must be even
+  const eoSum = cube.eo.reduce((a: number, b: number) => a + b, 0);
+  if (eoSum % 2 !== 0) {
+    return 'Invalid edge orientation (e.g. an edge is physically flipped). Please check your colors.';
+  }
+
+  // 3. Permutation Parity: corner swaps + edge swaps must be even
+  const totalSwaps = getNumSwaps(cube.ep) + getNumSwaps(cube.cp);
+  if (totalSwaps % 2 !== 0) {
+    return 'Invalid permutation parity (e.g. two corners or two edges are swapped). Please check your colors.';
+  }
+
+  return null;
+}
+
 initSolver();
 
 self.onmessage = (event: MessageEvent) => {
@@ -30,6 +77,14 @@ self.onmessage = (event: MessageEvent) => {
   if (type === 'SOLVE') {
     try {
       const cube = Cube.fromString(faceletString);
+      
+      // Perform strict mathematical solvability validation
+      const errorMsg = verifyCubeSolvability(cube);
+      if (errorMsg) {
+        self.postMessage({ type: 'SOLVE_ERROR', error: errorMsg });
+        return;
+      }
+
       const solution: string = cube.solve();
       self.postMessage({ type: 'SOLUTION', solution });
     } catch (err: unknown) {

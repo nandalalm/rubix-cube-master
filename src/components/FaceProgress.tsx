@@ -1,7 +1,7 @@
 'use client';
 
 import styles from './FaceProgress.module.css';
-import { FACE_ORDER, FACE_LABELS, FACE_CSS_COLORS, FaceColor, FACE_DIRECTIONS } from '@/lib/cubeUtils';
+import { FACE_ORDER, FACE_LABELS, FACE_CSS_COLORS, FaceColor } from '@/lib/cubeUtils';
 
 interface FaceProgressProps {
   scannedFaces: Set<FaceColor>;
@@ -42,7 +42,7 @@ export default function FaceProgress({ scannedFaces, currentFaceIndex, onFaceCli
                 )}
               </div>
               <span className={styles.faceId} style={{ color: isCurrent ? '#c084fc' : isScanned ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
-                {FACE_DIRECTIONS[face]}
+                {FACE_LABELS[face]}
               </span>
             </button>
           );
