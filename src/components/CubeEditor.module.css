@@ -136,16 +136,22 @@
 /* Responsive */
 @media (max-width: 520px) {
   .emptySlot {
-    width: 84px;
-    height: 84px;
+    width: 66px;
+    height: 66px;
   }
   .faceGrid {
-    width: 84px;
+    width: 66px;
   }
   .cell {
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
     border-radius: 4px;
+  }
+  .cross {
+    gap: 4px;
+  }
+  .crossRow {
+    gap: 4px;
   }
   .paletteBtn {
     width: 26px;

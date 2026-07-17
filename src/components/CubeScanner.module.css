@@ -155,8 +155,8 @@
 .bottomPanel {
   flex: 0 0 auto;
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
   padding: 10px 0 0;
   min-height: 0;
@@ -168,7 +168,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 168px; /* Standardize width to perfectly align grid and controls */
+  width: 180px; /* Standardize width to perfectly align grid and controls */
 }
 
 .colorGrid {

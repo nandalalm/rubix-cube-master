@@ -57,7 +57,7 @@
 .cubeArt {
   display: grid;
   grid-template-columns: repeat(3, 36px);
-  grid-template-rows: repeat(2, 36px);
+  grid-template-rows: repeat(3, 36px);
   gap: 4px;
   padding: 12px;
   background: rgba(255,255,255,0.04);
@@ -99,6 +99,10 @@
   flex: 1;
   min-width: 180px;
 }
+
+/* Button text: show long on big screens, short on tiny screens */
+.btnTextLong { display: inline; }
+.btnTextShort { display: none; }
 
 .features {
   display: flex;
@@ -274,8 +278,8 @@
 
 /* ---- Color Count Chips ---- */
 .colorCounts {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 5px;
   width: 100%;
 }
@@ -340,18 +344,94 @@
 }
 
 /* Responsive */
-@media (max-width: 500px) {
-  .heroCtas .btn {
-    min-width: 140px;
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 0;
+    margin-bottom: 0;
+  }
+  .section {
+    justify-content: center;
+    padding-top: 8vh; /* push content down from top */
   }
   .hero {
-    gap: 1.25rem;
     padding: 1.5rem 0 2rem;
+    gap: 1.25rem;
+  }
+  .heroTitle {
+    font-size: 2.5rem !important;
+  }
+  .heroSubtitle {
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .heroCtas .btn {
+    min-width: 140px;
+    height: 40px !important;
+    min-height: 40px !important;
+    font-size: 0.9rem !important;
+    padding: 0 1rem !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .colorCounts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .countChip {
+    padding: 3px 4px;
+    font-size: 0.65rem;
+  }
+  .hero {
+    gap: 1rem !important;
+    padding: 2.5rem 0 1.5rem !important;
+  }
+  .heroTitle {
+    font-size: 2rem !important;
+  }
+  .heroSubtitle {
+    font-size: 0.9rem !important;
+  }
+  .heroBadge {
+    font-size: 0.65rem !important;
+    padding: 0.25rem 0.6rem !important;
+  }
+  .featureChip {
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.7rem !important;
+  }
+  .heroCtas .btn {
+    min-width: 120px;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 0.8rem !important;
+    padding: 0 0.75rem !important;
   }
   .cubeArt {
     grid-template-columns: repeat(3, 28px);
-    grid-template-rows: repeat(2, 28px);
+    grid-template-rows: repeat(3, 28px);
   }
+}
+
+@media (max-width: 470px) {
+  .heroCtas {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+  }
+  .heroCtas .btn {
+    min-width: 0 !important;
+    flex: 1 1 0;
+    /* Override btn-lg completely */
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 0.78rem !important;
+    padding: 0 0.5rem !important;
+    border-radius: 10px !important;
+    gap: 3px !important;
+  }
+  .btnTextLong { display: none; }
+  .btnTextShort { display: inline; }
 }
 
 @media (min-aspect-ratio: 1/1) and (min-width: 600px) {

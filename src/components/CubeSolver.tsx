@@ -104,6 +104,10 @@ export default function CubeSolver({ solution, onReset }: CubeSolverProps) {
         <div className={`badge badge-accent`}>{totalSteps} moves</div>
       </div>
 
+      <div className={styles.orientationNote}>
+        <strong>Before Step 1:</strong> Hold the cube with White on top and Green facing you. Keep that orientation for the whole solution; turn only the face named by each move.
+      </div>
+
       {/* Progress */}
       <div className={styles.progressSection}>
         <div className="progress-bar">

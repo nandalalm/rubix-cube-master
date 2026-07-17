@@ -27,6 +27,12 @@ type CaptureMode = 'camera' | 'manual';
 
 type SolverStatus = 'loading' | 'ready' | 'solving' | 'error';
 
+const CAMERA_REVIEW_HINT =
+  'Review the cube in the same orientation used while scanning: White is the top face and Green is the front face in the middle of the net. Camera scan uses the camera lens as the viewer, so do not flip the cube to your own viewpoint before correcting stickers.';
+
+const MANUAL_ENTRY_HINT =
+  'Hold the cube with the White center pointing straight UP and the Green center pointing straight at YOU. Keep this exact orientation constant as you paint the colors to match the layout.';
+
 function LoaderOverlay({ message }: { message: string }) {
   return (
     <div className={styles.loaderOverlay}>
@@ -37,52 +43,110 @@ function LoaderOverlay({ message }: { message: string }) {
 }
 
 function HeroSection({ onStart, solverStatus }: { onStart: (mode: CaptureMode) => void; solverStatus: SolverStatus }) {
+  const FACES: FaceColor[] = ['U', 'R', 'F', 'D', 'L', 'B'];
+  const targetRef = useRef<FaceColor>('U');
+
+  // Scramble: give every cell a random colour that is NOT the target
+  const makeScrambled = (target: FaceColor): FaceColor[] =>
+    Array(9).fill(null).map(() => {
+      const pool = FACES.filter(f => f !== target);
+      return pool[Math.floor(Math.random() * pool.length)];
+    }) as FaceColor[];
+
+  // Stable SSR-safe initial state — randomised on client inside useEffect
+  const [cubeColors, setCubeColors] = useState<FaceColor[]>(Array(9).fill('U') as FaceColor[]);
+
+  useEffect(() => {
+    // Pick initial target and scramble immediately on client
+    const initTarget: FaceColor = FACES[Math.floor(Math.random() * FACES.length)];
+    targetRef.current = initTarget;
+    setCubeColors(makeScrambled(initTarget));
+    let phase: 'solving' | 'paused' | 'scrambling' = 'solving';
+    let solveStep = 0;   // 0‥12
+    let pauseTicks = 0;
+    let scrambleTicks = 0;
+
+    const interval = setInterval(() => {
+      setCubeColors(prev => {
+        const next = [...prev] as FaceColor[];
+        const target = targetRef.current;
+
+        if (phase === 'solving') {
+          if (solveStep < 6) {
+            // Steps 1-6: fix cells 0-5 one by one
+            next[solveStep] = target;
+            solveStep++;
+
+          } else if (solveStep === 6) {
+            // Step 7: blip — re-scramble the bottom row so solving continues
+            const pool = FACES.filter(f => f !== target);
+            next[6] = pool[0]; next[7] = pool[1 % pool.length]; next[8] = pool[2 % pool.length];
+            solveStep++; // move to step 8
+
+          } else if (solveStep < 10) {
+            // Steps 8-10: fix cells 6-8 one by one
+            next[solveStep - 1] = target; // cell indices 6,7,8
+            solveStep++;
+
+          } else {
+            // Fully solved!
+            phase = 'paused';
+            pauseTicks = 0;
+          }
+
+        } else if (phase === 'paused') {
+          pauseTicks++;
+          if (pauseTicks >= 8) { // 8 × 180ms ≈ 1.5 s
+            phase = 'scrambling';
+            scrambleTicks = 0;
+            // Pick a new target for next cycle (different from current)
+            const others = FACES.filter(f => f !== targetRef.current);
+            targetRef.current = others[Math.floor(Math.random() * others.length)];
+          }
+
+        } else if (phase === 'scrambling') {
+          // Re-scramble one random cell per tick (10 ticks = 10 visible scramble steps)
+          const pool = FACES.filter(f => f !== targetRef.current);
+          next[scrambleTicks % 9] = pool[Math.floor(Math.random() * pool.length)];
+          scrambleTicks++;
+          if (scrambleTicks >= 10) {
+            phase = 'solving';
+            solveStep = 0;
+          }
+        }
+
+        return next;
+      });
+    }, 180); // fast enough to look snappy, slow enough to see each step
+
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className={`${styles.hero} animate-fadeInUp`}>
-      {/* Badge */}
-      <div className={`badge badge-accent ${styles.heroBadge}`}>
-        <span>✦</span>
-        Powered by Kociemba&apos;s Algorithm
-      </div>
 
       {/* Animated cube icon */}
       <div className={styles.cubeArt} aria-hidden="true">
-        {['U', 'R', 'F', 'D', 'L', 'B'].map((f) => (
+        {cubeColors.map((f, i) => (
           <div
-            key={f}
+            key={i}
             className={styles.cubeArtFace}
-            style={{ background: FACE_CSS_COLORS[f as FaceColor] }}
+            style={{ 
+              background: FACE_CSS_COLORS[f as FaceColor],
+              transition: 'background 0.3s ease'
+            }}
           />
         ))}
       </div>
 
       <h1 className={`text-5xl font-bold text-gradient ${styles.heroTitle}`}>
-        Rubik&apos;s Cube<br />Master
+        Rubik&apos;s Cube Master
       </h1>
       <p className={`text-lg text-secondary ${styles.heroSubtitle}`}>
         Scan all 6 sides of your scrambled cube, and we&apos;ll solve it in{' '}
         <strong className="text-accent">22 moves or less</strong> — step by step.
       </p>
-
-      {/* Solver status */}
-      <div className={styles.solverStatus}>
-        {solverStatus === 'loading' && (
-          <div className="flex items-center gap-2 text-sm text-secondary">
-            <div className="spinner" />
-            Initializing solver engine…
-          </div>
-        )}
-        {solverStatus === 'ready' && (
-          <div className={`badge badge-success animate-fadeIn`}>
-            ✓ Solver ready
-          </div>
-        )}
-        {solverStatus === 'error' && (
-          <div className={`badge badge-error`}>
-            ⚠ Solver failed to load
-          </div>
-        )}
-      </div>
 
       {/* CTA Buttons */}
       <div className={`${styles.heroCtas} stagger`}>
@@ -91,29 +155,17 @@ function HeroSection({ onStart, solverStatus }: { onStart: (mode: CaptureMode) =
           onClick={() => onStart('camera')}
           id="scan-camera-btn"
         >
-          📷 Scan with Camera
+          <span className={styles.btnTextLong}>📷 Scan with Camera</span>
+          <span className={styles.btnTextShort}>📷 Camera</span>
         </button>
         <button
           className="btn btn-secondary btn-lg animate-fadeInUp"
           onClick={() => onStart('manual')}
           id="manual-entry-btn"
         >
-          ✏️ Enter Manually
+          <span className={styles.btnTextLong}>✏️ Enter Manually</span>
+          <span className={styles.btnTextShort}>✏️ Manual</span>
         </button>
-      </div>
-
-      {/* Features */}
-      <div className={`${styles.features} stagger`}>
-        {[
-          { icon: '🎯', label: 'Auto Color Detection' },
-          { icon: '🔄', label: 'Step-by-Step Guide' },
-          { icon: '⚡', label: 'Solves in Seconds' },
-        ].map(({ icon, label }) => (
-          <div key={label} className={`${styles.featureChip} glass animate-fadeInUp`}>
-            <span>{icon}</span>
-            <span className="text-sm font-medium">{label}</span>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -307,7 +359,7 @@ export default function Home() {
             <div className={styles.centreHint}>
               <span className={styles.centreHintIcon}>💡</span>
               <span>
-                <strong>Scan Tip:</strong> When scanning side faces, keep the <strong>White center pointing straight UP</strong> and start with the <strong>Green center pointing towards the camera</strong>. Rotate the cube only around this vertical axis to scan side faces — do not spin, twist, or flip the cube randomly.
+                <strong>Scan Tip:</strong> Use the rear camera if possible. Start with <strong>White UP</strong> and <strong>Green facing the camera</strong>; on a standard cube, Red should be on camera-right. If Red is on camera-left, the cube is mirrored from this app's assumed color scheme or the camera preview is mirrored.
               </span>
             </div>
 
@@ -348,12 +400,12 @@ export default function Home() {
                 </p>
                 <p className={styles.instructionText}>
                   {[
-                    'Point the White center at the camera. Make sure the Green center points straight DOWN and the Blue center points straight UP.',
-                    'Keep the White center pointing straight UP. Turn the cube to bring the Red face (on the right) to face the camera.',
-                    'Keep the White center pointing straight UP. Turn the cube to bring the Green face (on the front) to face the camera.',
-                    'Point the Yellow center at the camera. Make sure the Green center points straight UP and the Blue center points straight DOWN.',
-                    'Keep the White center pointing straight UP. Turn the cube to bring the Orange face (on the left) to face the camera.',
-                    'Keep the White center pointing straight UP. Turn the cube to bring the Blue face (on the back) to face the camera.',
+                    'From setup, tip the cube forward/back like nodding it so White faces the camera. Green should point DOWN and Blue should point UP.',
+                    'Return to setup: White UP, Green facing the camera. Keep White facing the ceiling and turn the cube like a turntable until the Red face from camera-right faces the camera.',
+                    'Return to setup: White UP, Green facing the camera. Keep the Green front face facing the camera.',
+                    'From setup, tip the cube forward/back like nodding it so Yellow faces the camera. Green should point UP and Blue should point DOWN.',
+                    'Return to setup: White UP, Green facing the camera. Keep White facing the ceiling and turn the cube like a turntable until the Orange face from camera-left faces the camera.',
+                    'Return to setup: White UP, Green facing the camera. Keep White facing the ceiling and turn the cube like a turntable 180 degrees until the Blue back face faces the camera.',
                   ][currentFaceIndex]}
                 </p>
                 <div className={styles.instructionTips}>
@@ -389,7 +441,7 @@ export default function Home() {
             <div className={`${styles.centreHint} ${styles.centreHintDark}`}>
               <span className={styles.centreHintIcon}>💡</span>
               <span>
-                <strong>Orientation Guide:</strong> Hold the cube with the <strong>White center pointing straight UP (to the sky)</strong> and the <strong>Green center pointing straight at YOU</strong>. Keep this exact orientation constant without spinning, twisting, or rotating the cube randomly and changing its axis as you paint the colors to match the layout.
+                <strong>Orientation Guide:</strong> {captureMode === 'camera' ? CAMERA_REVIEW_HINT : MANUAL_ENTRY_HINT}
               </span>
             </div>
 
